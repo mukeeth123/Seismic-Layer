@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-base: #0A0D14;
+  --bg-surface: #0F1520;
+  --bg-elevated: #131C2E;
+  --border-subtle: #1E2A3A;
+  --border-accent: rgba(59,127,232,0.15);
+  --accent-blue: #3B7FE8;
+  --accent-purple: #7C4DFF;
+  --success: #00C896;
+  --warning: #F5A623;
+  --danger: #E84040;
+  --text-primary: #FFFFFF;
+  --text-secondary: #8A9BB5;
+  --text-muted: #4A5B70;
+  --glass-bg: rgba(15,21,32,0.85);
+  --sidebar-width: 220px;
+  --sidebar-collapsed: 56px;
+  --topbar-height: 56px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Skeleton pulse */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.skeleton {
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Shake animation for login error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+.shake { animation: shake 0.4s ease-in-out; }
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.25s ease-out forwards; }
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.slide-in-right { animation: slideInRight 0.25s ease-out forwards; }
+
+/* Dot pulse (copilot thinking) */
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Toast slide up */
+@keyframes toastIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(20px); opacity: 0; }
+}
+
+/* Glow text */
+.glow-text {
+  text-shadow: 0 0 20px rgba(59,127,232,0.6), 0 0 40px rgba(59,127,232,0.3);
+}
+
+/* Glass panel */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-accent);
+}
+
+/* Card */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+/* Utility */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-blue { color: var(--accent-blue); }
+.text-purple { color: var(--accent-purple); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--danger); }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.overflow-auto { overflow: auto; }
+.overflow-hidden { overflow: hidden; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── LIGHT THEME overrides ───────────────────────────────────────────── */
+[data-theme="light"] body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+[data-theme="light"] .card {
+  background: var(--bg-surface);
+  border-color: var(--border-subtle);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .glass {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(59,127,232,0.2);
+}
+[data-theme="light"] ::-webkit-scrollbar-track { background: #E8ECF4; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #C0CCDE; }
+[data-theme="light"] select {
+  background-color: #FFFFFF !important;
+  color: #0A0D14 !important;
+  border-color: #D0D8E8;
+}
+[data-theme="light"] select option {
+  background-color: #FFFFFF !important;
+  color: #0A0D14 !important;
+}
+[data-theme="light"] .skeleton {
+  background: #D8E0EE;
+}
+[data-theme="light"] .recharts-cartesian-grid-horizontal line,
+[data-theme="light"] .recharts-cartesian-grid-vertical line {
+  stroke: #D0D8E8 !important;
+}
+[data-theme="light"] .recharts-text { fill: #3A4A6B !important; }
+
+/* ── SELECT / OPTION dark theme override ─────────────────────────────── */
+select {
+  background-color: #0F1520 !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+select option {
+  background-color: #0F1520 !important;
+  color: var(--text-primary) !important;
+  padding: 6px 10px;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #1E2A3A !important;
+  color: var(--accent-blue) !important;
+}
+
+/* Firefox specific */
+@-moz-document url-prefix() {
+  select {
+    background-color: #0F1520 !important;
+    color: var(--text-primary) !important;
+  }
+  select option {
+    background-color: #0F1520 !important;
+    color: var(--text-primary) !important;
+  }
+}
+
+/* Recharts override */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--border-subtle) !important;
+}
+.recharts-text { fill: var(--text-secondary) !important; font-size: 11px !important; }

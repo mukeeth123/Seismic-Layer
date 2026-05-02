@@ -50,9 +50,9 @@ export default function Dashboard() {
     if (ready) setTimeout(() => setLoading(false), 300);
   }, [ready]);
 
-  // Draw inline 50 amplitude section
+  // Draw inline 50 amplitude section — depends on loading so canvas is mounted
   useEffect(() => {
-    if (!ready || !canvasRef.current) return;
+    if (loading || !canvasRef.current) return;
     const slice = getInline(49);
     if (!slice) return;
     const canvas = canvasRef.current;
@@ -89,59 +89,66 @@ export default function Dashboard() {
     ctx.setLineDash([4, 3]);
     ctx.beginPath(); ctx.moveTo(W * 0.55, 0); ctx.lineTo(W * 0.7, H); ctx.stroke();
     ctx.setLineDash([]);
-  }, [ready, getInline, config]);
+  }, [loading, getInline, config]); // re-runs when canvas mounts
 
-  // Fault/horizon map (time slice)
+  // Fault/horizon map — depends on loading (canvas only mounts after loading=false)
   useEffect(() => {
-    if (!ready || !faultCanvasRef.current) return;
-    const canvas = faultCanvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const imgData = ctx.createImageData(W, H);
-    const cm = COLORMAPS.seismic;
+    if (loading || !faultCanvasRef.current) return;
 
-    // Simple synthetic top-down amplitude map
-    for (let py = 0; py < H; py++) {
-      for (let px = 0; px < W; px++) {
-        const il = px / W, xl = py / H;
-        const v = 0.4 * Math.sin(il * 12) * Math.cos(xl * 10) + 0.3 * Math.sin((il + xl) * 8) - 0.1;
-        const [r, g, b] = cm(Math.max(-1, Math.min(1, v)));
-        const pi = (py * W + px) * 4;
-        imgData.data[pi] = r; imgData.data[pi+1] = g; imgData.data[pi+2] = b; imgData.data[pi+3] = 255;
+    // rAF ensures the canvas is fully painted in the DOM before we draw
+    const raf = requestAnimationFrame(() => {
+      const canvas = faultCanvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const imgData = ctx.createImageData(W, H);
+      const cm = COLORMAPS.seismic;
+
+      // Synthetic top-down amplitude map
+      for (let py = 0; py < H; py++) {
+        for (let px = 0; px < W; px++) {
+          const il = px / W, xl = py / H;
+          const v = 0.4 * Math.sin(il * 12) * Math.cos(xl * 10) + 0.3 * Math.sin((il + xl) * 8) - 0.1;
+          const [r, g, b] = cm(Math.max(-1, Math.min(1, v)));
+          const pi = (py * W + px) * 4;
+          imgData.data[pi] = r; imgData.data[pi + 1] = g; imgData.data[pi + 2] = b; imgData.data[pi + 3] = 255;
+        }
       }
-    }
-    ctx.putImageData(imgData, 0, 0);
+      ctx.putImageData(imgData, 0, 0);
 
-    // Fault lines
-    ctx.strokeStyle = 'rgba(232,64,64,0.85)';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 3]);
-    [[0.3, 0.1, 0.6, 0.5], [0.55, 0.2, 0.8, 0.7], [0.1, 0.6, 0.4, 0.9]].forEach(([x1, y1, x2, y2]) => {
-      ctx.beginPath(); ctx.moveTo(x1 * W, y1 * H); ctx.lineTo(x2 * W, y2 * H); ctx.stroke();
+      // Fault lines
+      ctx.strokeStyle = 'rgba(232,64,64,0.85)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 3]);
+      [[0.3, 0.1, 0.6, 0.5], [0.55, 0.2, 0.8, 0.7], [0.1, 0.6, 0.4, 0.9]].forEach(([x1, y1, x2, y2]) => {
+        ctx.beginPath(); ctx.moveTo(x1 * W, y1 * H); ctx.lineTo(x2 * W, y2 * H); ctx.stroke();
+      });
+      ctx.setLineDash([]);
+
+      // Horizon contours
+      ctx.strokeStyle = 'rgba(255,220,0,0.6)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.ellipse(W * (0.3 + i * 0.2), H * 0.5, W * (0.15 + i * 0.05), H * (0.12 + i * 0.04), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Drilling candidates
+      DRILLING.forEach(d => {
+        const x = (d.inline / 480) * W;
+        const y = (d.xline / 360) * H;
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = d.risk === 'Low' ? 'rgba(0,200,150,0.8)' : d.risk === 'Medium' ? 'rgba(245,166,35,0.8)' : 'rgba(232,64,64,0.8)';
+        ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.font = '9px Inter'; ctx.fillText(d.id, x + 7, y + 3);
+      });
     });
-    ctx.setLineDash([]);
 
-    // Horizon contours
-    ctx.strokeStyle = 'rgba(255,220,0,0.6)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-      ctx.beginPath();
-      ctx.ellipse(W * (0.3 + i * 0.2), H * 0.5, W * (0.15 + i * 0.05), H * (0.12 + i * 0.04), 0, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    // Drilling candidates
-    DRILLING.forEach(d => {
-      const x = (d.inline / 480) * W;
-      const y = (d.xline / 360) * H;
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = d.risk === 'Low' ? 'rgba(0,200,150,0.8)' : d.risk === 'Medium' ? 'rgba(245,166,35,0.8)' : 'rgba(232,64,64,0.8)';
-      ctx.fill();
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.font = '9px Inter'; ctx.fillText(d.id, x + 7, y + 3);
-    });
-  }, [ready]);
+    return () => cancelAnimationFrame(raf);
+  }, [loading]); // re-runs when loading flips false and canvas mounts
 
   return (
     <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>

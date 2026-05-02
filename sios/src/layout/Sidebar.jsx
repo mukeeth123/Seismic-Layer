@@ -45,10 +45,19 @@ export default function Sidebar({ collapsed, onToggle }) {
       display: 'flex', flexDirection: 'column',
       transition: 'width 0.2s ease, min-width 0.2s ease',
       overflow: 'hidden', flexShrink: 0,
+      position: 'relative',
     }}>
-      {/* Logo */}
-      <div style={{ padding: collapsed ? '16px 12px' : '16px 16px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: 10, minHeight: 56 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(59,127,232,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      {/* Logo row */}
+      <div style={{
+        padding: collapsed ? '16px 14px' : '16px 16px',
+        borderBottom: '1px solid var(--border-subtle)',
+        display: 'flex', alignItems: 'center', gap: 10, minHeight: 56,
+      }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 6,
+          background: 'rgba(59,127,232,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
           <Zap size={15} color="var(--accent-blue)" />
         </div>
         {!collapsed && (
@@ -57,13 +66,40 @@ export default function Sidebar({ collapsed, onToggle }) {
             <div style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: 1 }}>v1.0</div>
           </div>
         )}
-        <button onClick={onToggle} style={{
-          marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer',
-          color: 'var(--text-muted)', display: 'flex', padding: 2, flexShrink: 0,
-        }}>
-          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
       </div>
+
+      {/* Toggle button — pinned to top-right, always on top, always clickable */}
+      <button
+        onClick={onToggle}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        style={{
+          position: 'absolute',
+          top: 16,
+          right: collapsed ? 10 : 12,
+          zIndex: 10,
+          width: 22, height: 22,
+          borderRadius: 4,
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-subtle)',
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--text-muted)',
+          transition: 'all 0.15s',
+          flexShrink: 0,
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = 'rgba(59,127,232,0.15)';
+          e.currentTarget.style.color = 'var(--accent-blue)';
+          e.currentTarget.style.borderColor = 'rgba(59,127,232,0.4)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'var(--bg-elevated)';
+          e.currentTarget.style.color = 'var(--text-muted)';
+          e.currentTarget.style.borderColor = 'var(--border-subtle)';
+        }}
+      >
+        {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+      </button>
 
       {/* Project badge */}
       {!collapsed && auth?.project && (
@@ -90,11 +126,12 @@ export default function Sidebar({ collapsed, onToggle }) {
                 <NavLink key={item.path} to={item.path} style={{ textDecoration: 'none' }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
-                    padding: collapsed ? '9px 14px' : '8px 14px',
+                    padding: '9px 14px',
                     margin: '1px 6px', borderRadius: 6,
                     background: active ? 'rgba(59,127,232,0.12)' : 'transparent',
                     color: active ? 'var(--accent-blue)' : 'var(--text-secondary)',
                     transition: 'all 0.15s', cursor: 'pointer',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
                   }}
                   onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                   onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}>
